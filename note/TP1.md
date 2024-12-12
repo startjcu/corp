@@ -245,6 +245,141 @@ export default function RootLayout({
 
 ### 本地项目连接远程仓库
 
+- 远程建立仓库，复制地址
+- `git remote add origin git@github.com:startjcu/corp.git`
+- 常规添加、提交到本地操作
+- `git push -u origin master`
+
 ### Vercel 部署
 
 - 网站 `https://vercel.com/`
+
+### 使用 antd
+
+- 安装 `npm i antd`
+- 使用 `import { Button } from 'antd'`
+- 页面加载 antd 组件闪动
+  - `Ant Design、研发、在Next.js中使用、使用App Router`
+
+```tsx
+import "./globals.css";
+import { ADLaM_Display } from "next/font/google";
+// npm install @ant-design/nextjs-registry --save
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+
+const geist = ADLaM_Display({ subsets: ["latin"], weight: "400" });
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className={geist.className}>
+        <AntdRegistry>{children}</AntdRegistry>
+      </body>
+    </html>
+  );
+}
+```
+
+### 动态路由
+
+- 在路由文件夹下，创建`[key]`的文件夹
+- 在上一部的文件夹中的 page.tsx 中使用`{ params: { key } }`来获取
+
+### 动态 metadata
+
+- 客户端组件不允许使用`metadata`
+  - 可以将组件中需要用到客户端功能的内容单独封装成一个组件
+    - 服务端组件可以引用客户端组件，不改变其组件性质
+  - 让后在组件中导出 `metadata`
+- 使用方法定义动态 metadata `https://nextjs.org/docs`
+
+```tsx
+interface IParams {
+  params: {
+    id: string;
+  };
+}
+
+// 多次使用到，定义一个接口
+export async function generateMetadata({ params }: IParams) {
+  const id = (await params).id;
+  return { title: `detail ${id}` };
+}
+
+// 单次使用，可以直接在后面定义参数类型
+export default async function page({ params }: { params: { id: string } }) {
+  const id = (await params).id;
+  return <div>weblog: {id}</div>;
+}
+```
+
+### 平行路由
+
+- 使用`@xxx`在一个路由下创建几个平级的路由
+- 在`layout`中配置，和`children`是同一级别的
+- (子路由)软导航能实现局部完美替代，硬导航会报 404 错误
+  - 使用`default.tsx`，但函数名不能命名为 default 关键字
+
+app/parallel/layout.tsx
+
+```tsx
+import Link from "next/link";
+
+export default function RootLayout({
+  children,
+  team,
+  visitors,
+}: Readonly<{
+  children: React.ReactNode;
+  team: React.ReactNode;
+  visitors: React.ReactNode;
+}>) {
+  return (
+    <div className="p-10">
+      <div className="p-6 text-center space-x-8 text-blue-500">
+        <Link href="/parallel">Home</Link>
+        <Link href="/parallel/visitors">Visitor</Link>
+      </div>
+      <div className="flex gap-6">
+        {team}
+        {visitors}
+      </div>
+      {children}
+    </div>
+  );
+}
+```
+
+parallel/@team/page.tsx
+
+```tsx
+export default function Team() {
+  return (
+    <div className="flex-1 h-32 bg-teal-500 rounded-lg flex justify-center items-center text-white text-3xl">
+      Team
+    </div>
+  );
+}
+```
+
+parallel/@visitor/visitors/page.tsx
+
+```tsx
+export default function Visitors() {
+  return (
+    <div className="flex-1 h-32 bg-orange-400 rounded-lg flex justify-center items-center text-white text-3xl">
+      @two visitors
+    </div>
+  );
+}
+```
+
+### 拦截路由
+
+- 软导航和硬导航有不同的呈现方式
+  - 软导航，页面点击跳转的，写在平行路由的`(.)photos/[id]/page.tsx`中
+  - 硬导航，刷新或点击分析链接打开页面，写在正常的文件路由中
