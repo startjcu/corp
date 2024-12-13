@@ -383,3 +383,7 @@ export default function Visitors() {
 - 软导航和硬导航有不同的呈现方式
   - 软导航，页面点击跳转的，写在平行路由的`(.)photos/[id]/page.tsx`中
   - 硬导航，刷新或点击分析链接打开页面，写在正常的文件路由中
+
+### lowdb
+
+- 参考 lowdb 文档 `https://github.com/typicode/lowdb`
